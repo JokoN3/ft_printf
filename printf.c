@@ -6,17 +6,19 @@
 /*   By: yoneshev <yoneshev@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2026/03/17 16:00:01 by yoneshev      #+#    #+#                 */
-/*   Updated: 2026/03/25 18:16:49 by yoneshev      ########   odam.nl         */
+/*   Updated: 2026/03/25 19:21:52 by yoneshev      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "printf.h"
+#include "ft_printf.h"
 
 int	printf_str(char *s)
 {
 	int	i;
 
 	i = 0;
+	if (!s)
+		return (write(1, "(null)", 6));
 	while (s[i])
 	{
 		write(1, &s[i], 1);
@@ -86,7 +88,7 @@ int	printf_putunsigned(unsigned int n)
 	return (len);
 }
 
-int get_hex_len(unsigned int n)
+int get_hex_len(unsigned long n)
 {
 	int	i;
 
@@ -102,7 +104,6 @@ int get_hex_len(unsigned int n)
 int	put_hex_lower(unsigned int n)
 {
 	char	hex[] = "0123456789abcdef";
-	char	c;
 	int		len;
 
 	if (n == 0)
@@ -110,15 +111,13 @@ int	put_hex_lower(unsigned int n)
 	len = get_hex_len(n);
 	if (n >= 16)
 		put_hex_lower(n / 16);
-	c = hex[n % 16];
-	write(1, &c, 1);
+	write(1, &hex[n % 16], 1);
 	return (len);
 }
 
 int	put_hex_upper(unsigned int n)
 {
 	char	hex[] = "0123456789ABCDEF";
-	char	c;
 	int		len;
 
 	if (n == 0)
@@ -126,9 +125,26 @@ int	put_hex_upper(unsigned int n)
 	len = get_hex_len(n);
 	if (n >= 16)
 		put_hex_upper(n / 16);
-	c = hex[n % 16];
-	write(1, &c, 1);
+	write(1, &hex[n % 16], 1);
 	return (len);
+}
+
+int	print_address(uintptr_t n, int recur)
+{
+	int		len;
+	char	hex[] = "0123456789abcdef";
+
+	len = 0;
+	if (!n)
+		return (write(1, "(nil)", 5));
+	if (recur == 0)
+		len = write(1, "0x", 2);
+	recur = 1;
+	len += get_hex_len((unsigned long) n);
+	if (n >= 16)
+		print_address(n / 16, recur);
+	write(1, &hex[n % 16], 1);
+	return (len);	
 }
 
 int	handle_args(va_list *args, char format)
@@ -147,6 +163,8 @@ int	handle_args(va_list *args, char format)
 		return (put_hex_upper(va_arg(*args, unsigned int)));
 	if (format == '%')
 		return (ft_putchar_fd('%', 1), 1);
+	if (format == 'p')
+		return (print_address(va_arg(*args, uintptr_t), 0));
 	return 0;
 }
 
