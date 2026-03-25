@@ -6,7 +6,7 @@
 /*   By: yoneshev <yoneshev@student.codam.nl>         +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2026/03/17 16:00:01 by yoneshev      #+#    #+#                 */
-/*   Updated: 2026/03/25 17:32:20 by yoneshev      ########   odam.nl         */
+/*   Updated: 2026/03/25 18:16:49 by yoneshev      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ int	printf_putchar(char c)
 	return (1);
 }
 
-int	get_num_len(int n)
+int	get_num_len(long long n)
 {
 	int	i;
 
@@ -71,6 +71,66 @@ int	printf_putnbr(int n)
 	return (len);
 }
 
+int	printf_putunsigned(unsigned int n)
+{
+	char	c;
+	int		len;
+
+	if (n == 0)
+		return (write(1, "0", 1), 1);
+	len = get_num_len(n);
+	if (n >= 10)
+		printf_putunsigned(n / 10);
+	c = (n % 10) + '0';
+	write(1, &c, 1);
+	return (len);
+}
+
+int get_hex_len(unsigned int n)
+{
+	int	i;
+
+	i = 0;
+	while (n > 0)
+	{
+		i++;
+		n /= 16;
+	}
+	return (i);
+}
+
+int	put_hex_lower(unsigned int n)
+{
+	char	hex[] = "0123456789abcdef";
+	char	c;
+	int		len;
+
+	if (n == 0)
+		return (write(1, "0", 1), 1);
+	len = get_hex_len(n);
+	if (n >= 16)
+		put_hex_lower(n / 16);
+	c = hex[n % 16];
+	write(1, &c, 1);
+	return (len);
+}
+
+int	put_hex_upper(unsigned int n)
+{
+	char	hex[] = "0123456789ABCDEF";
+	char	c;
+	int		len;
+
+	if (n == 0)
+		return (write(1, "0", 1), 1);
+	len = get_hex_len(n);
+	if (n >= 16)
+		put_hex_upper(n / 16);
+	c = hex[n % 16];
+	write(1, &c, 1);
+	return (len);
+}
+
 int	handle_args(va_list *args, char format)
 {
 	if (format == 'c')
@@ -79,6 +139,14 @@ int	handle_args(va_list *args, char format)
 		return (printf_str(va_arg(*args, char *)));
 	if (format == 'd' || format == 'i')
 		return (printf_putnbr(va_arg(*args, int)));
+	if (format == 'u')
+		return (printf_putunsigned(va_arg(*args, unsigned int)));
+	if (format == 'x')
+		return (put_hex_lower(va_arg(*args, unsigned int)));
+	if (format == 'X')
+		return (put_hex_upper(va_arg(*args, unsigned int)));
+	if (format == '%')
+		return (ft_putchar_fd('%', 1), 1);
 	return 0;
 }
 
