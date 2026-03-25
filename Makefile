@@ -3,7 +3,8 @@ CFLAGS = -Wall -Wextra -Werror
 
 NAME = libftprintf.a
 
-SRCS = printf.c
+SRCS = ft_printf.c print_string.c \
+		print_numbers.c print_hex.c
 OBJS = $(SRCS:.c=.o)
 
 LIBFT_DIR = libft
